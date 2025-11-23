@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Giovanni Street Armoury Create</title>
+    
+    <link rel="icon" type="image/jpeg" href="/images/logosite.jpg">
+    
+    <link rel="stylesheet" href="/stylecss/stylecss.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="top-bar">
+            <div class="logo-container">
+                <a href="/">
+                    <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
+                </a>
+     </div>
+
+        <form action="/" method="GET" class="filters-container">
+            
+            <select name="category">
+                <option value="">-- Type d'Arme --</option>
+                <option value="Pistolet" {{if eq .CurrentCategory "Pistolet"}}selected{{end}}>🔫 Pistolets</option>
+                <option value="Fusil d'assaut" {{if eq .CurrentCategory "Fusil d'assaut"}}selected{{end}}>💥 Fusils d'assaut</option>
+                <option value="Bouclier" {{if eq .CurrentCategory "Bouclier"}}selected{{end}}>🛡️ Boucliers</option>
+            </select>
+
+            <select name="rarity">
+                <option value="">-- Rareté --</option>
+                <option value="Légendaire" {{if eq .CurrentRarity "Légendaire"}}selected{{end}}>🟠 Légendaire</option>
+                <option value="Séraphin" {{if eq .CurrentRarity "Séraphin"}}selected{{end}}>🌸 Séraphin</option>
+                <option value="Perlé" {{if eq .CurrentRarity "Perlé"}}selected{{end}}>💠 Perlé</option>
+            </select>
+
+            <select name="name">
+                <option value="">⭐ Top Tier / Utilité</option>
+                <option value="The Bee" {{if eq .CurrentName "The Bee"}}selected{{end}}>🐝 The Bee</option>
+                <option value="Harold" {{if eq .CurrentName "Harold"}}selected{{end}}>💥 Harold</option>
+                <option value="Grog" {{if eq .CurrentName "Grog"}}selected{{end}}>🍷 Grog Nozzle</option>
+                <option value="Conference" {{if eq .CurrentName "Conference"}}selected{{end}}>📞 Conference Call</option>
+            </select>
+
+            <button type="submit" class="btn-filter">Filtrer</button>
+            <a href="/" class="btn-reset">Reset</a>
+        </form>
+    </header>
+
+   <!-- ... -->
+    <main>
+        <h1 class="page-title">
+            Giovanni Street Armoury <span class="red-two">2</span>
+        </h1>
+        <div id="weapon-container">
+            {{if .Weapons}}
+                {{range .Weapons}}
+                <div class="card" style="border-color: 
+                    {{if eq .Rarity "Séraphin"}}#ff69b4
+                    {{else if eq .Rarity "Perlé"}}#00ffff
+                    {{else}}#f3a833{{end}};">
+                    
+                    <div class="card-image-box">
+                        <img src="{{.ImageURL}}" alt="{{.Name}}">
+                    </div>
+                    
+                    <div class="card-content">
+                        <h2 style="color:
+                            {{if eq .Rarity "Séraphin"}}#ff69b4
+                            {{else if eq .Rarity "Perlé"}}#00ffff
+                            {{else}}#f3a833{{end}};">
+                            {{.Name}}
+                        </h2>
+                        
+                        <div class="info-row">
+                            <span class="manufacturer">{{.Manufacturer}}</span>
+                            <span class="rarity-tag" style="background:
+                                {{if eq .Rarity "Séraphin"}}#ff69b4
+                                {{else if eq .Rarity "Perlé"}}#00ffff
+                                {{else}}#f3a833{{end}};">
+                                {{.Rarity}}
+                            </span>
+                        </div>
+                        
+                        <div class="category">{{.Category}}</div>
+                        <div class="flavor">"{{.FlavorText}}"</div>
+                        <div class="details">{{.Details}}</div>
+                    </div>
+                </div>
+                {{end}}
+            {{else}}
+                <p class="no-result">Aucun butin trouvé pour cette recherche, Chasseur de l'Arche 🔫 !</p>
+            {{end}}
+        </div>
+    </main>
+
+</body>
+</html>

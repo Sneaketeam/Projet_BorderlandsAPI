@@ -1,0 +1,277 @@
+/* --- STYLE GLOBAL --- */
+body {
+    font-family: 'Arial', sans-serif;
+    background-image: url('/images/studio.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-color: #1a1a1a;
+    color: white;
+    margin: 0;
+    padding-top: 100px;
+}
+
+/* --- TOP BAR --- */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background-color: rgba(20, 20, 20, 0.95);
+    border-bottom: 4px solid #f3a833;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+/* Logo dans la top bar */
+.logo {
+    height: 100px;
+    transition: transform 0.2s;
+    filter: drop-shadow(2px 2px 0 #000); /* Petite ombre pour le détacher du fond */
+}
+.logo:hover {
+    transform: scale(1.1) rotate(-2deg);
+}
+
+.filters-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* --- SELECTEURS CUSTOMISÉS --- */
+select {
+    background-color: #333;
+    color: #f3a833; /* Orange Borderlands */
+    border: 2px solid #f3a833;
+    
+    /* Espace interne : On met beaucoup d'espace à droite (40px) pour la flèche */
+    padding: 12px 40px 12px 20px;
+    
+    font-weight: bold;
+    font-size: 16px; /* Texte plus grand */
+    border-radius: 0; /* Style carré */
+    transform: skewX(-10deg); /* Penché */
+    cursor: pointer;
+    outline: none;
+
+    /* 1. ON SUPPRIME LA FLÈCHE MOCHE PAR DÉFAUT */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    /* 2. ON AJOUTE NOTRE PROPRE FLÈCHE (En SVG Orange) */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23f3a833%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    
+    /* 3. ON LA POSITIONNE ET ON LA GROSSIT */
+    background-repeat: no-repeat;
+    background-position: right 15px center; /* À 15px du bord droit (ça respire !) */
+    background-size: 14px auto; /* Taille de la flèche */
+    
+    /* Petite ombre portée pour le style */
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+    transition: all 0.2s;
+}
+
+/* Effet au survol */
+select:hover {
+    background-color: #444;
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.5); /* L'ombre grandit */
+    transform: skewX(-10deg) translateY(-2px); /* Petit saut */
+}
+
+/* --- BOUTON FILTRER (Gros et Orange) --- */
+.btn-filter {
+    background-color: #f3a833;
+    color: black;
+    border: 2px solid black; /* Bordure épaisse */
+    
+    /* Même taille de texte et padding que les selecteurs pour être aligné */
+    font-weight: bold;
+    font-size: 16px; 
+    padding: 12px 30px; 
+    
+    cursor: pointer;
+    transform: skewX(-10deg);
+    text-transform: uppercase;
+    margin-right: 10px; /* Un peu d'espace avec le bouton reset */
+    
+    /* La même ombre que les selecteurs */
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+    transition: all 0.2s;
+}
+
+.btn-filter:hover {
+    background-color: #ffcc00; /* Devient jaune vif au survol */
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.5);
+    transform: skewX(-10deg) translateY(-2px);
+}
+
+/* --- BOUTON RESET (Gros et Rouge) --- */
+.btn-reset {
+    background-color: #ff5555;
+    color: white;
+    border: 2px solid black;
+    
+    /* Même taille que les autres */
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px 25px;
+    
+    cursor: pointer;
+    transform: skewX(-10deg);
+    text-decoration: none;
+    display: inline-block;
+    text-transform: uppercase;
+    
+    /* La même ombre */
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+    transition: all 0.2s;
+}
+
+.btn-reset:hover {
+    background-color: #ff3333; /* Rouge plus vif */
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.5);
+    transform: skewX(-10deg) translateY(-2px);
+}
+
+/* --- LE TITRE PRINCIPAL --- */
+.page-title {
+    text-align: center;
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 3.5rem;
+    color: #ffcc00; /* Jaune Borderlands */
+    
+    /* Contour noir épais (Cel Shading) */
+    text-shadow: 
+        3px 3px 0 #000,
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        5px 5px 0 rgba(0,0,0,0.5);
+        
+    margin-top: 40px;
+    margin-bottom: 50px;
+    transform: rotate(-2deg);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Style pour le "2" rouge */
+.red-two {
+    color: #ff3333;
+    font-size: 4rem;
+    display: inline-block;
+    transform: rotate(5deg);
+    margin-left: 5px;
+    text-shadow: 4px 4px 0 #000;
+}
+
+/* --- GRILLE & CARTES --- */
+#weapon-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    padding: 20px;
+}
+
+.card {
+    background-color: rgba(30, 30, 30, 0.9);
+    width: 300px;
+    border: 3px solid #f3a833;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.2s;
+    box-shadow: 10px 10px 0 rgba(0,0,0,0.5);
+    overflow: hidden; /* Important pour que l'image ne dépasse pas */
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.02);
+    z-index: 10;
+}
+
+/* --- IMAGES PLEIN CADRE --- */
+.card-image-box {
+    background-color: #222;
+    height: 180px; /* Hauteur fixe */
+    width: 100%;
+    border-bottom: 3px solid #000;
+    overflow: hidden;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* L'image remplit tout le cadre (zoom) */
+    object-position: center;
+    transition: transform 0.3s ease;
+}
+
+.card:hover img {
+    transform: scale(1.1); /* Zoom léger au survol */
+}
+
+.card-content {
+    padding: 15px;
+    text-align: left;
+}
+
+.card h2 {
+    margin: 0;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.manufacturer {
+    font-weight: bold;
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+.rarity-tag {
+    padding: 2px 8px;
+    color: black;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.flavor {
+    color: #ff5555;
+    font-style: italic;
+    font-family: 'Courier New', monospace;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.details {
+    font-size: 13px;
+    color: #ddd;
+    line-height: 1.4;
+}
+
+.no-result {
+    font-size: 24px;
+    color: white;
+    background: rgba(0,0,0,0.8);
+    padding: 20px;
+    border: 2px solid #f3a833;
+}
