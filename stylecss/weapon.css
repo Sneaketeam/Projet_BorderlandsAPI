@@ -1,0 +1,124 @@
+/* --- CONTENEUR GLOBAL --- */
+.detail-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 20px;
+}
+
+/* --- LA CARTE DÉTAILLÉE --- */
+.detail-card {
+    background-color: rgba(20, 20, 20, 0.95);
+    
+    /* Les bordures épaisses style Borderlands */
+    border-width: 4px;
+    border-style: solid;
+    /* La couleur est gérée par le HTML (Go) */
+    
+    border-radius: 20px;
+    max-width: 1200px;
+    width: 90%;
+    display: flex;
+    flex-wrap: wrap; /* Pour que ça passe bien sur mobile */
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    overflow: hidden; /* Coupe tout ce qui dépasse */
+    margin-top: 20px;
+}
+
+/* --- L'IMAGE (Plein cadre SANS BARRES NOIRES) --- */
+.detail-image-box {
+    flex: 1;
+    min-width: 400px;
+    background-color: #222; /* Couleur de fond au cas où, mais ne devrait pas se voir */
+    min-height: 500px;     /* On force une bonne hauteur pour la boîte */
+    position: relative;
+    overflow: hidden;      /* Important : garde l'image dans la boîte */
+    border-right: 4px solid black;
+}
+
+.detail-image-box img {
+    width: 100%;
+    height: 100%;
+    
+    /* C'EST LA LIGNE MAGIQUE : */
+    object-fit: cover;   /* L'image zoome pour remplir tout l'espace sans se déformer */
+    object-position: center; /* On centre l'arme */
+    
+    display: block;
+}
+
+/* --- LE CONTENU TEXTE --- */
+.detail-content {
+    flex: 1;
+    padding: 50px;
+    text-align: left;
+    min-width: 350px;
+}
+
+/* Titre de l'arme */
+.detail-title {
+    font-family: 'Impact', sans-serif;
+    font-size: 4rem;
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+    text-shadow: 4px 4px 0 #000;
+}
+
+/* Badges (Marque / Rareté) */
+.detail-badges {
+    margin-bottom: 30px;
+}
+
+.detail-badge-manufacturer {
+    font-size: 1.5rem;
+    background: #333;
+    padding: 5px 15px;
+    margin-right: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #aaa;
+    border: 2px solid black;
+}
+
+.detail-badge-rarity {
+    font-size: 1.5rem;
+    color: black;
+    padding: 5px 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: 2px solid black;
+}
+
+/* Citation (Flavor Text) */
+.detail-flavor {
+    font-family: 'Courier New', monospace;
+    color: #ff5555;
+    font-size: 1.4rem;
+    font-style: italic;
+    border-left: 4px solid #ff5555;
+    padding-left: 20px;
+    margin-bottom: 30px;
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+}
+
+/* Titres de section (Analyse, Source) */
+.detail-section-title {
+    color: #aaa;
+    border-bottom: 2px solid #555;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+}
+
+/* Texte de description */
+.detail-text {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #ddd;
+}

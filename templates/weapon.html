@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Name}} - Détails</title>
+    <link rel="icon" type="image/jpeg" href="/images/logosite.jpg">
+    
+    <link rel="stylesheet" href="/stylecss/stylecss.css">
+    <link rel="stylesheet" href="/stylecss/weapon.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="top-bar">
+        
+        <div class="logo-container">
+            <a href="/">
+                <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
+            </a>
+        </div>
+
+        <a href="/" class="btn-reset" style="font-size: 18px; padding: 12px 30px;">⬅ REVENIR À L'ARMURERIE</a>
+        
+    </header>
+
+    <main class="detail-container">
+        
+        <div class="detail-card" style="border-color: 
+            {{if eq .Rarity "Séraphin"}}#ff69b4
+            {{else if eq .Rarity "Perlé"}}#00ffff
+            {{else}}#f3a833{{end}};">
+            
+            <div class="detail-image-box">
+                <img src="{{.ImageURL}}" alt="{{.Name}}">
+            </div>
+
+            <div class="detail-content">
+                
+                <h1 class="detail-title" style="color: 
+                    {{if eq .Rarity "Séraphin"}}#ff69b4
+                    {{else if eq .Rarity "Perlé"}}#00ffff
+                    {{else}}#f3a833{{end}};">
+                    {{.Name}}
+                </h1>
+
+                <div class="detail-badges">
+                    <span class="detail-badge-manufacturer">{{.Manufacturer}}</span>
+                    <span class="detail-badge-rarity" style="background: 
+                        {{if eq .Rarity "Séraphin"}}#ff69b4
+                        {{else if eq .Rarity "Perlé"}}#00ffff
+                        {{else}}#f3a833{{end}};">
+                        {{.Rarity}}
+                    </span>
+                </div>
+
+                <p class="detail-flavor">
+                    "{{.FlavorText}}"
+                </p>
+
+                <h3 class="detail-section-title">ANALYSE TECHNIQUE</h3>
+                <p class="detail-text">
+                    {{.Details}}
+                </p>
+
+                <h3 class="detail-section-title">SOURCE DE BUTIN</h3>
+                <p class="detail-text">
+                    📍 {{.Source}}
+                </p>
+
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

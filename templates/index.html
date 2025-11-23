@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Giovanni Street Armoury Create</title>
-    
     <link rel="icon" type="image/jpeg" href="/images/logosite.jpg">
-    
     <link rel="stylesheet" href="/stylecss/stylecss.css">
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header class="top-bar">
-            <div class="logo-container">
-                <a href="/">
-                    <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
-                </a>
-     </div>
+        <div class="logo-container">
+            <a href="/">
+                <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
+            </a>
+        </div>
 
         <form action="/" method="GET" class="filters-container">
             
@@ -47,46 +45,50 @@
         </form>
     </header>
 
-   <!-- ... -->
     <main>
         <h1 class="page-title">
             Giovanni Street Armoury <span class="red-two">2</span>
         </h1>
+
         <div id="weapon-container">
             {{if .Weapons}}
                 {{range .Weapons}}
-                <div class="card" style="border-color: 
-                    {{if eq .Rarity "Séraphin"}}#ff69b4
-                    {{else if eq .Rarity "Perlé"}}#00ffff
-                    {{else}}#f3a833{{end}};">
+                
+                <a href="/weapon?id={{.ID}}" style="text-decoration: none;">
                     
-                    <div class="card-image-box">
-                        <img src="{{.ImageURL}}" alt="{{.Name}}">
-                    </div>
-                    
-                    <div class="card-content">
-                        <h2 style="color:
-                            {{if eq .Rarity "Séraphin"}}#ff69b4
-                            {{else if eq .Rarity "Perlé"}}#00ffff
-                            {{else}}#f3a833{{end}};">
-                            {{.Name}}
-                        </h2>
+                    <div class="card" style="border-color: 
+                        {{if eq .Rarity "Séraphin"}}#ff69b4
+                        {{else if eq .Rarity "Perlé"}}#00ffff
+                        {{else}}#f3a833{{end}};">
                         
-                        <div class="info-row">
-                            <span class="manufacturer">{{.Manufacturer}}</span>
-                            <span class="rarity-tag" style="background:
+                        <div class="card-image-box">
+                            <img src="{{.ImageURL}}" alt="{{.Name}}">
+                        </div>
+                        
+                        <div class="card-content">
+                            <h2 style="color:
                                 {{if eq .Rarity "Séraphin"}}#ff69b4
                                 {{else if eq .Rarity "Perlé"}}#00ffff
                                 {{else}}#f3a833{{end}};">
-                                {{.Rarity}}
-                            </span>
+                                {{.Name}}
+                            </h2>
+                            
+                            <div class="info-row">
+                                <span class="manufacturer">{{.Manufacturer}}</span>
+                                <span class="rarity-tag" style="background:
+                                    {{if eq .Rarity "Séraphin"}}#ff69b4
+                                    {{else if eq .Rarity "Perlé"}}#00ffff
+                                    {{else}}#f3a833{{end}};">
+                                    {{.Rarity}}
+                                </span>
+                            </div>
+                            
+                            <div class="category">{{.Category}}</div>
+                            <div class="flavor">"{{.FlavorText}}"</div>
+                            <div class="details">{{.Details}}</div>
                         </div>
-                        
-                        <div class="category">{{.Category}}</div>
-                        <div class="flavor">"{{.FlavorText}}"</div>
-                        <div class="details">{{.Details}}</div>
                     </div>
-                </div>
+                </a>
                 {{end}}
             {{else}}
                 <p class="no-result">Aucun butin trouvé pour cette recherche, Chasseur de l'Arche 🔫 !</p>

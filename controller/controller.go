@@ -110,3 +110,38 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 func GetWeapons(w http.ResponseWriter, r *http.Request) {
 	// Cette fonction API ne sert plus au site, on la laisse vide ou on peut la supprimer.
 }
+
+// Fonction pour la page DÉTAIL (Une seule arme)
+func WeaponPage(w http.ResponseWriter, r *http.Request) {
+	// 1. On récupère l'ID depuis l'URL (ex: /weapon?id=4)
+	id := r.URL.Query().Get("id")
+
+	if id == "" {
+		http.Error(w, "ID manquant", 400)
+		return
+	}
+
+	db := dbConn()
+	defer db.Close()
+
+	// 2. On cherche L'ARME unique correspondante
+	// QueryRow sert quand on ne veut qu'un seul résultat
+	row := db.QueryRow("SELECT * FROM weapons WHERE id = ?", id)
+
+	var wpn Weapon
+	err := row.Scan(&wpn.ID, &wpn.Category, &wpn.Name, &wpn.Manufacturer, &wpn.Rarity, &wpn.FlavorText, &wpn.Details, &wpn.Source, &wpn.ImageURL)
+
+	if err != nil {
+		http.Error(w, "Arme introuvable ou erreur BDD: "+err.Error(), 404)
+		return
+	}
+
+	// 3. On affiche la page dédiée
+	t, err := template.ParseFiles("templates/weapon.html") // On va créer ce fichier
+	if err != nil {
+		http.Error(w, "Erreur Template: "+err.Error(), 500)
+		return
+	}
+
+	t.Execute(w, wpn)
+}
