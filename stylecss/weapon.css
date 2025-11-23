@@ -20,32 +20,48 @@
     max-width: 1200px;
     width: 90%;
     display: flex;
-    flex-wrap: wrap; /* Pour que ça passe bien sur mobile */
+    flex-wrap: wrap;
     box-shadow: 0 0 50px rgba(0,0,0,0.8);
-    overflow: hidden; /* Coupe tout ce qui dépasse */
+    overflow: hidden;
     margin-top: 20px;
 }
 
-/* --- L'IMAGE (Plein cadre SANS BARRES NOIRES) --- */
+/* --- L'IMAGE (Mode Vitrine / Inspection) --- */
 .detail-image-box {
     flex: 1;
     min-width: 400px;
-    background-color: #222; /* Couleur de fond au cas où, mais ne devrait pas se voir */
-    min-height: 500px;     /* On force une bonne hauteur pour la boîte */
+    min-height: 500px;
     position: relative;
-    overflow: hidden;      /* Important : garde l'image dans la boîte */
     border-right: 4px solid black;
+
+    /* Fond dégradé pour mettre l'arme en valeur */
+    background: radial-gradient(circle at center, #333 0%, #050505 100%);
+    
+    /* Centrage parfait de l'arme */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .detail-image-box img {
-    width: 100%;
-    height: 100%;
+    /* On laisse une petite marge pour que l'arme respire */
+    width: 90%;
+    height: 90%;
     
-    /* C'EST LA LIGNE MAGIQUE : */
-    object-fit: cover;   /* L'image zoome pour remplir tout l'espace sans se déformer */
-    object-position: center; /* On centre l'arme */
+    /* Affiche l'arme ENTIÈRE sans couper les bords */
+    object-fit: contain;
     
+    object-position: center;
     display: block;
+    
+    /* Ombre portée pour l'effet 3D */
+    filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8));
+    
+    transition: transform 0.3s ease;
+}
+
+.detail-image-box:hover img {
+    transform: scale(1.05) rotate(-2deg);
 }
 
 /* --- LE CONTENU TEXTE --- */
