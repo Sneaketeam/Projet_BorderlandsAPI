@@ -5,45 +5,75 @@
     <title>Giovanni Street Armoury Create</title>
     <link rel="icon" type="image/jpeg" href="/images/logosite.jpg">
     <link rel="stylesheet" href="/stylecss/stylecss.css">
+    <link rel="stylesheet" href="/stylecss/favorites.css">
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header class="top-bar">
-        <div class="logo-container">
-            <a href="/">
-                <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
-            </a>
+        
+        <div style="display: flex; align-items: center;">
+            <div class="logo-container">
+                <a href="/">
+                    <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
+                </a>
+            </div>
+
+            {{if .IsLoggedIn}}
+                <div class="user-panel">
+                    <span class="username-display">{{.Username}}</span>
+                    <a href="/logout" class="btn-deco">DÉCONNEXION</a>
+                </div>
+            {{else}}
+                <div class="user-panel">
+                    <a href="/auth" class="btn-filter" style="text-decoration: none; font-size: 14px; padding: 8px 20px;">LOGIN</a>
+                </div>
+            {{end}}
         </div>
 
-        <form action="/" method="GET" class="filters-container">
+        <form action="/" method="GET" class="filters-container" style="display: flex; width: 100%; align-items: center;">
             
-            <select name="category">
-                <option value="">-- Type d'Arme --</option>
-                <option value="Pistolet" {{if eq .CurrentCategory "Pistolet"}}selected{{end}}>🔫 Pistolets</option>
-                <option value="Fusil d'assaut" {{if eq .CurrentCategory "Fusil d'assaut"}}selected{{end}}>💥 Fusils d'assaut</option>
-                <option value="Bouclier" {{if eq .CurrentCategory "Bouclier"}}selected{{end}}>🛡️ Boucliers</option>
-            </select>
+            <div class="search-container">
+                <input type="text" name="name" class="search-bar" placeholder="🔍 Rechercher une arme..." value="{{.CurrentName}}">
+            </div>
 
-            <select name="rarity">
-                <option value="">-- Rareté --</option>
-                <option value="Légendaire" {{if eq .CurrentRarity "Légendaire"}}selected{{end}}>🟠 Légendaire</option>
-                <option value="Séraphin" {{if eq .CurrentRarity "Séraphin"}}selected{{end}}>🌸 Séraphin</option>
-                <option value="Perlé" {{if eq .CurrentRarity "Perlé"}}selected{{end}}>💠 Perlé</option>
-            </select>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                
+                <select name="category">
+                    <option value="">-- Type --</option>
+                    <option value="Pistolet" {{if eq .CurrentCategory "Pistolet"}}selected{{end}}>🔫 Pistolets</option>
+                    <option value="Fusil d'assaut" {{if eq .CurrentCategory "Fusil d'assaut"}}selected{{end}}>💥 Fusils</option>
+                    <option value="Bouclier" {{if eq .CurrentCategory "Bouclier"}}selected{{end}}>🛡️ Boucliers</option>
+                </select>
 
-            <select name="name">
-                <option value="">⭐ Top Tier / Utilité</option>
-                <option value="The Bee" {{if eq .CurrentName "The Bee"}}selected{{end}}>🐝 The Bee</option>
-                <option value="Harold" {{if eq .CurrentName "Harold"}}selected{{end}}>💥 Harold</option>
-                <option value="Grog" {{if eq .CurrentName "Grog"}}selected{{end}}>🍷 Grog Nozzle</option>
-                <option value="Conference" {{if eq .CurrentName "Conference"}}selected{{end}}>📞 Conference Call</option>
-            </select>
+                <select name="rarity">
+                    <option value="">-- Rareté --</option>
+                    <option value="Légendaire" {{if eq .CurrentRarity "Légendaire"}}selected{{end}}>🟠 Légendaire</option>
+                    <option value="Séraphin" {{if eq .CurrentRarity "Séraphin"}}selected{{end}}>🌸 Séraphin</option>
+                    <option value="Perlé" {{if eq .CurrentRarity "Perlé"}}selected{{end}}>💠 Perlé</option>
+                </select>
 
-            <button type="submit" class="btn-filter">Filtrer</button>
-            <a href="/" class="btn-reset">Reset</a>
+                {{if .IsLoggedIn}}
+                    <a href="/favorites" class="btn-filter btn-fav">⭐ FAVORIS</a>
+                {{else}}
+                    <a href="/?msg=nologin" class="btn-filter btn-fav">⭐ FAVORIS</a>
+                {{end}}
+
+                <button type="submit" class="btn-filter">FILTRER</button>
+                <a href="/" class="btn-reset">RESET</a>
+            </div>
         </form>
     </header>
+
+    {{if .FlashMessage}}
+    <div class="flash-container">
+        <div class="flash-message {{if eq .FlashType "error"}}flash-error{{else}}flash-success{{end}}">
+            {{.FlashMessage}}
+        </div>
+    </div>
+    {{end}}
+
+    <div id="js-flash-container" class="flash-container"></div>
 
     <main>
         <h1 class="page-title">
@@ -54,17 +84,22 @@
             {{if .Weapons}}
                 {{range .Weapons}}
                 
-                <a href="/weapon?id={{.ID}}" style="text-decoration: none;">
+                <div class="card" style="border-color: 
+                    {{if eq .Rarity "Séraphin"}}#ff69b4
+                    {{else if eq .Rarity "Perlé"}}#00ffff
+                    {{else}}#f3a833{{end}};">
                     
-                    <div class="card" style="border-color: 
-                        {{if eq .Rarity "Séraphin"}}#ff69b4
-                        {{else if eq .Rarity "Perlé"}}#00ffff
-                        {{else}}#f3a833{{end}};">
-                        
+                    <div onclick="toggleFavorite(this, {{.ID}})" 
+                         class="fav-btn {{if .IsFavorite}}fav-remove{{else}}fav-add{{end}}" 
+                         style="cursor: pointer;"
+                         title="Favoris">
+                        {{if .IsFavorite}}❌{{else}}★{{end}}
+                    </div>
+
+                    <a href="/weapon?id={{.ID}}" class="card-link">
                         <div class="card-image-box">
                             <img src="{{.ImageURL}}" alt="{{.Name}}">
                         </div>
-                        
                         <div class="card-content">
                             <h2 style="color:
                                 {{if eq .Rarity "Séraphin"}}#ff69b4
@@ -72,7 +107,6 @@
                                 {{else}}#f3a833{{end}};">
                                 {{.Name}}
                             </h2>
-                            
                             <div class="info-row">
                                 <span class="manufacturer">{{.Manufacturer}}</span>
                                 <span class="rarity-tag" style="background:
@@ -82,19 +116,72 @@
                                     {{.Rarity}}
                                 </span>
                             </div>
-                            
                             <div class="category">{{.Category}}</div>
                             <div class="flavor">"{{.FlavorText}}"</div>
                             <div class="details">{{.Details}}</div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
                 {{end}}
             {{else}}
-                <p class="no-result">Aucun butin trouvé pour cette recherche, Chasseur de l'Arche 🔫 !</p>
+                <p class="no-result">Aucun butin trouvé, Chasseur !</p>
             {{end}}
         </div>
     </main>
+
+    <script>
+        function toggleFavorite(btn, id) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            fetch('/api/fav/toggle?id=' + id)
+                .then(response => {
+                    if (response.status === 401) {
+                        window.location.href = "/?msg=nologin";
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return;
+
+                    // Reset complet du style inline pour laisser le CSS agir
+                    btn.style = "cursor: pointer;"; 
+
+                    if (data.status === "added") {
+                        // DEVIENT SUPPRIMER (ROUGE)
+                        btn.innerHTML = "❌";
+                        btn.classList.remove("fav-add");
+                        btn.classList.add("fav-remove"); // Cette classe met le fond rouge via CSS
+                        
+                        showFlash("★ " + data.name + " ajoutée aux Favoris !", "success");
+
+                    } else if (data.status === "removed") {
+                        // DEVIENT AJOUTER (CYAN)
+                        btn.innerHTML = "★";
+                        btn.classList.remove("fav-remove");
+                        btn.classList.add("fav-add"); // Cette classe remet le style par défaut
+                        
+                        showFlash("🗑️ " + data.name + " retirée des Favoris.", "error");
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        function showFlash(message, type) {
+            const container = document.getElementById('js-flash-container');
+            const div = document.createElement('div');
+            
+            div.className = 'flash-message ' + (type === 'error' ? 'flash-error' : 'flash-success');
+            div.innerText = message;
+            
+            container.appendChild(div);
+
+            setTimeout(() => {
+                div.remove();
+            }, 3500);
+        }
+    </script>
 
 </body>
 </html>

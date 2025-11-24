@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion - Giovanni Street</title>
+    
+    <link rel="icon" type="image/jpeg" href="/images/logosite.jpg">
+    
+    <link rel="stylesheet" href="/stylecss/stylecss.css">
+    <link rel="stylesheet" href="/stylecss/login.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="logo-container">
+            <a href="/">
+                <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
+            </a>
+        </div>
+
+        <a href="/" class="btn-reset" style="font-size: 18px; padding: 12px 30px; margin-left: auto;">⬅ RETOUR ACCUEIL</a>
+    </header>
+
+    <main class="login-wrapper">
+        
+        {{if .IsError}}
+        <div class="error-container">
+            <div class="error-box">
+                ⚠ {{.ErrorMessage}}
+            </div>
+        </div>
+        {{end}}
+        
+        <div class="login-box box-signup">
+            <h2 class="login-title title-signup">Nouvelle Recrue ?</h2>
+            <p class="login-subtitle">Rejoins les Chasseurs de l'Arche !</p>
+            
+            <form action="/signup" method="POST">
+                <input type="text" name="username" placeholder="CHOISIS UN PSEUDO" required>
+                <input type="password" name="password" placeholder="MOT DE PASSE SECRET" required>
+                <button type="submit" class="btn-submit submit-signup">S'inscrire</button>
+            </form>
+        </div>
+
+        <div class="login-box box-login">
+            <h2 class="login-title title-login">Déjà Chasseur ?</h2>
+            <p class="login-subtitle">Connecte-toi à ton réseau ECHO.</p>
+            
+            <form action="/login" method="POST">
+                <input type="text" name="username" placeholder="TON PSEUDO" required>
+                <input type="password" name="password" placeholder="TON MOT DE PASSE" required>
+                <button type="submit" class="btn-submit submit-login">Se Connecter</button>
+            </form>
+        </div>
+
+    </main>
+
+</body>
+</html>

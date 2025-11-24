@@ -7,30 +7,43 @@
     
     <link rel="stylesheet" href="/stylecss/stylecss.css">
     <link rel="stylesheet" href="/stylecss/weapon.css">
+    <link rel="stylesheet" href="/stylecss/favorites.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header class="top-bar">
-        
         <div class="logo-container">
             <a href="/">
                 <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
             </a>
         </div>
 
-        <a href="/" class="btn-reset" style="font-size: 18px; padding: 12px 30px;">⬅ REVENIR À L'ARMURERIE</a>
-        
+        <form action="/" method="GET" style="flex: 1; display: flex; justify-content: center; margin: 0 20px;">
+            <input type="text" name="name" class="search-bar" placeholder="🔍 Chercher une autre arme..." style="width: 100%; max-width: 500px;">
+            <button type="submit" style="display: none;"></button>
+        </form>
+
+        <a href="/" class="btn-reset" style="font-size: 16px; padding: 12px 25px; white-space: nowrap;">⬅ REVENIR</a>
     </header>
+
+    <div id="js-flash-container" class="flash-container"></div>
 
     <main class="detail-container">
         
-        <div class="detail-card" style="border-color: 
+        <div class="detail-card" style="position: relative; border-color: 
             {{if eq .Rarity "Séraphin"}}#ff69b4
             {{else if eq .Rarity "Perlé"}}#00ffff
             {{else}}#f3a833{{end}};">
             
+            <div onclick="toggleFavorite(this, {{.ID}})" 
+                 class="fav-btn {{if .IsFavorite}}fav-remove{{else}}fav-add{{end}}" 
+                 style="cursor: pointer; position: absolute; top: 20px; right: 20px; width: 60px; height: 60px; font-size: 30px; z-index: 100;" 
+                 title="Favoris">
+                {{if .IsFavorite}}❌{{else}}★{{end}}
+            </div>
+
             <div class="detail-image-box">
                 <img src="{{.ImageURL}}" alt="{{.Name}}">
             </div>
@@ -72,6 +85,56 @@
         </div>
 
     </main>
+
+    <script>
+        function toggleFavorite(btn, id) {
+            fetch('/api/fav/toggle?id=' + id)
+                .then(response => {
+                    if (response.status === 401) {
+                        showFlash("⚠️ Hé ! Connecte-toi pour ajouter des favoris !", "error");
+                        throw new Error("Non connecté");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return;
+
+                    if (data.status === "added") {
+                        // DEVIENT ROUGE (Supprimer)
+                        btn.innerHTML = "❌";
+                        btn.classList.remove("fav-add");
+                        btn.classList.add("fav-remove");
+                        
+                        // Message avec le nom
+                        showFlash("★ " + data.name + " ajoutée aux Favoris !", "success");
+
+                    } else if (data.status === "removed") {
+                        // DEVIENT CYAN (Ajouter)
+                        btn.innerHTML = "★";
+                        btn.classList.remove("fav-remove");
+                        btn.classList.add("fav-add");
+
+                        // Message avec le nom
+                        showFlash("🗑️ " + data.name + " retirée des Favoris.", "error");
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        function showFlash(message, type) {
+            const container = document.getElementById('js-flash-container');
+            const div = document.createElement('div');
+            
+            div.className = 'flash-message ' + (type === 'error' ? 'flash-error' : 'flash-success');
+            div.innerText = message;
+            
+            container.appendChild(div);
+
+            setTimeout(() => {
+                div.remove();
+            }, 3500);
+        }
+    </script>
 
 </body>
 </html>

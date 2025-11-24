@@ -1,0 +1,33 @@
+/* --- STYLE SPECIFIQUE PAGE FAVORIS --- */
+
+/* Le titre "MON COFFRE" */
+.favorites-title {
+    text-shadow: 4px 4px 0 #000;
+}
+
+/* Bouton Supprimer (Croix Rouge) */
+.btn-remove-fav {
+    font-size: 24px;
+}
+
+.btn-remove-fav:hover {
+    background-color: white !important;
+    color: red !important;
+    transform: scale(1.2) rotate(-15deg);
+    box-shadow: 0 0 15px red;
+}
+
+/* Message "Coffre vide" */
+.empty-vault-container {
+    text-align: center;
+    margin-top: 100px;
+}
+
+.empty-vault-msg {
+    font-size: 30px;
+    color: #aaa;
+    font-family: 'Impact', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Coffre - Giovanni Street</title>
+    <link rel="icon" type="image/jpeg" href="/images/logosite.jpg">
+    <link rel="stylesheet" href="/stylecss/stylecss.css">
+    <link rel="stylesheet" href="/stylecss/favorites.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="top-bar">
+        <div style="display: flex; align-items: center;">
+            <div class="logo-container">
+                <a href="/">
+                    <img src="/images/GiovanniStreet2.jpg" alt="Logo Giovanni Armoury" class="logo">
+                </a>
+            </div>
+            {{if .IsLoggedIn}}
+                <div class="user-panel">
+                    <span class="username-display">{{.Username}}</span>
+                    <a href="/logout" class="btn-deco">DÉCONNEXION</a>
+                </div>
+            {{end}}
+        </div>
+
+        <form action="/" method="GET" class="filters-container" style="display: flex; width: 100%; align-items: center;">
+            <div class="search-container">
+                <input type="text" name="name" class="search-bar" placeholder="🔍 Rechercher une arme..." value="{{.CurrentName}}">
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="/" class="btn-reset">RETOUR ACCUEIL</a>
+            </div>
+        </form>
+    </header>
+
+    <div id="js-flash-container" class="flash-container"></div>
+
+    <main>
+        <h1 class="page-title favorites-title">MON COFFRE</h1>
+
+        <div id="weapon-container">
+            {{if .Weapons}}
+                {{range .Weapons}}
+                
+                <div id="card-{{.ID}}" class="card" style="border-color: 
+                    {{if eq .Rarity "Séraphin"}}#ff69b4
+                    {{else if eq .Rarity "Perlé"}}#00ffff
+                    {{else}}#f3a833{{end}};">
+                    
+                    <div onclick="removeCard(this, {{.ID}})" 
+                         class="fav-btn fav-remove" 
+                         title="Jeter cette arme"
+                         style="cursor: pointer;">❌</div>
+
+                    <a href="/weapon?id={{.ID}}" class="card-link">
+                        <div class="card-image-box">
+                            <img src="{{.ImageURL}}" alt="{{.Name}}">
+                        </div>
+                        <div class="card-content">
+                            <h2 style="color: {{if eq .Rarity "Séraphin"}}#ff69b4 {{else if eq .Rarity "Perlé"}}#00ffff {{else}}#f3a833{{end}};">
+                                {{.Name}}
+                            </h2>
+                            <div class="info-row">
+                                <span class="manufacturer">{{.Manufacturer}}</span>
+                                <span class="rarity-tag" style="background: {{if eq .Rarity "Séraphin"}}#ff69b4 {{else if eq .Rarity "Perlé"}}#00ffff {{else}}#f3a833{{end}};">
+                                    {{.Rarity}}
+                                </span>
+                            </div>
+                            <div class="flavor">"{{.FlavorText}}"</div>
+                        </div>
+                    </a>
+                </div>
+                {{end}}
+            {{else}}
+                <div class="empty-vault-container">
+                    <p class="empty-vault-msg">Ton coffre est vide, Chasseur !</p>
+                    <a href="/" class="btn-filter" style="display: inline-block;">ALLER CHERCHER DU BUTIN</a>
+                </div>
+            {{end}}
+        </div>
+    </main>
+
+    <script>
+        function removeCard(btn, id) {
+            // Appel API pour supprimer
+            fetch('/api/fav/toggle?id=' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "removed") {
+                        // Animation de suppression visuelle
+                        const card = document.getElementById("card-" + id);
+                        card.style.transition = "all 0.5s ease";
+                        card.style.transform = "scale(0) rotate(20deg)";
+                        card.style.opacity = "0";
+                        
+                        showFlash("🗑️ " + data.name + " jetée du coffre.", "error");
+
+                        // Suppression réelle du DOM après l'animation
+                        setTimeout(() => {
+                            card.remove();
+                            // Optionnel : recharger si vide pour afficher le message "vide"
+                            if(document.querySelectorAll('.card').length === 0) location.reload();
+                        }, 500);
+                    }
+                });
+        }
+
+        function showFlash(message, type) {
+            const container = document.getElementById('js-flash-container');
+            const div = document.createElement('div');
+            div.className = 'flash-message ' + (type === 'error' ? 'flash-error' : 'flash-success');
+            div.innerText = message;
+            container.appendChild(div);
+            setTimeout(() => { div.remove(); }, 3500);
+        }
+    </script>
+
+</body>
+</html>

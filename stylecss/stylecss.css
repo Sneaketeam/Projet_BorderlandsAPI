@@ -1,4 +1,6 @@
-/* --- STYLE GLOBAL --- */
+/* =========================================
+   1. GLOBAL & BODY
+   ========================================= */
 body {
     font-family: 'Arial', sans-serif;
     background-image: url('/images/studio.jpg');
@@ -8,16 +10,18 @@ body {
     background-color: #1a1a1a;
     color: white;
     margin: 0;
-    padding-top: 100px;
+    padding-top: 120px; /* Ajusté pour éviter que le header cache le titre */
 }
 
-/* --- TOP BAR --- */
+/* =========================================
+   2. TOP BAR & NAVIGATION
+   ========================================= */
 .top-bar {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 80px;
+    height: 90px;
     background-color: rgba(20, 20, 20, 0.95);
     border-bottom: 4px solid #f3a833;
     display: flex;
@@ -29,133 +33,166 @@ body {
     box-sizing: border-box;
 }
 
-/* Logo dans la top bar */
 .logo {
     height: 100px;
     transition: transform 0.2s;
-    filter: drop-shadow(2px 2px 0 #000); /* Petite ombre pour le détacher du fond */
+    filter: drop-shadow(2px 2px 0 #000);
+    position: relative;
+    top: 5px;
 }
+
 .logo:hover {
     transform: scale(1.1) rotate(-2deg);
 }
 
-.filters-container {
+/* --- ZONE UTILISATEUR (Gauche) --- */
+.user-panel {
     display: flex;
-    gap: 15px;
     align-items: center;
+    gap: 15px;
+    margin-left: 15px;
+    white-space: nowrap;
 }
 
-/* --- SELECTEURS CUSTOMISÉS --- */
+.username-display {
+    color: #f3a833;
+    font-weight: bold;
+    font-size: 30px;
+    text-transform: uppercase;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* --- ZONE RECHERCHE (Positionnement) --- */
+.search-container {
+    flex: 1; /* Prend l'espace disponible */
+    display: flex;
+    /* C'EST ICI LE CHANGEMENT : */
+    justify-content: flex-start; /* Aligne tout à GAUCHE (au début) */
+    
+    /* On ajoute une marge à gauche pour ne pas coller au texte du pseudo */
+    margin-left: 40px; 
+    
+    padding-right: 0; /* On enlève le padding de droite qui gênait */
+}
+
+.search-bar {
+    width: 40%;
+    max-width: 500px; /* Tu peux augmenter ici si tu la veux plus longue */
+    padding: 12px 15px;
+    background-color: #333;
+    color: white;
+    border: 2px solid #f3a833;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 0;
+    transform: skewX(-10deg);
+    outline: none;
+    transition: all 0.2s;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+}
+
+.search-bar::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+.search-bar:focus {
+    background-color: #222;
+    box-shadow: 0 0 15px rgba(243, 168, 51, 0.3);
+    border-color: #ffcc00;
+    transform: skewX(-10deg) scale(1.02);
+}
+
+/* Le formulaire qui contient Recherche + Filtres */
+.filters-container {
+    display: flex;
+    width: 100%; /* Important */
+    align-items: center;
+    justify-content: space-between; /* Recherche à gauche, Filtres à droite */
+}
+
 select {
     background-color: #333;
-    color: #f3a833; /* Orange Borderlands */
+    color: #f3a833;
     border: 2px solid #f3a833;
-    
-    /* Espace interne : On met beaucoup d'espace à droite (40px) pour la flèche */
     padding: 12px 40px 12px 20px;
-    
     font-weight: bold;
-    font-size: 16px; /* Texte plus grand */
-    border-radius: 0; /* Style carré */
-    transform: skewX(-10deg); /* Penché */
+    font-size: 16px;
+    border-radius: 0;
+    transform: skewX(-10deg);
     cursor: pointer;
     outline: none;
-
-    /* 1. ON SUPPRIME LA FLÈCHE MOCHE PAR DÉFAUT */
+    /* Flèche custom */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-
-    /* 2. ON AJOUTE NOTRE PROPRE FLÈCHE (En SVG Orange) */
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23f3a833%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    
-    /* 3. ON LA POSITIONNE ET ON LA GROSSIT */
     background-repeat: no-repeat;
-    background-position: right 15px center; /* À 15px du bord droit (ça respire !) */
-    background-size: 14px auto; /* Taille de la flèche */
-    
-    /* Petite ombre portée pour le style */
+    background-position: right 15px center;
+    background-size: 14px auto;
     box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
     transition: all 0.2s;
 }
 
-/* Effet au survol */
 select:hover {
     background-color: #444;
-    box-shadow: 5px 5px 0 rgba(0,0,0,0.5); /* L'ombre grandit */
-    transform: skewX(-10deg) translateY(-2px); /* Petit saut */
-}
-
-/* --- BOUTON FILTRER (Gros et Orange) --- */
-.btn-filter {
-    background-color: #f3a833;
-    color: black;
-    border: 2px solid black; /* Bordure épaisse */
-    
-    /* Même taille de texte et padding que les selecteurs pour être aligné */
-    font-weight: bold;
-    font-size: 16px; 
-    padding: 12px 30px; 
-    
-    cursor: pointer;
-    transform: skewX(-10deg);
-    text-transform: uppercase;
-    margin-right: 10px; /* Un peu d'espace avec le bouton reset */
-    
-    /* La même ombre que les selecteurs */
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
-    transition: all 0.2s;
-}
-
-.btn-filter:hover {
-    background-color: #ffcc00; /* Devient jaune vif au survol */
     box-shadow: 5px 5px 0 rgba(0,0,0,0.5);
     transform: skewX(-10deg) translateY(-2px);
 }
 
-/* --- BOUTON RESET (Gros et Rouge) --- */
-.btn-reset {
-    background-color: #ff5555;
-    color: white;
+/* =========================================
+   3. BOUTONS (Unifiés)
+   ========================================= */
+.btn-filter, .btn-reset, .btn-deco, .btn-fav {
     border: 2px solid black;
-    
-    /* Même taille que les autres */
     font-weight: bold;
     font-size: 16px;
-    padding: 12px 25px;
-    
+    padding: 12px 30px;
     cursor: pointer;
     transform: skewX(-10deg);
-    text-decoration: none;
-    display: inline-block;
     text-transform: uppercase;
-    
-    /* La même ombre */
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
     transition: all 0.2s;
 }
 
-.btn-reset:hover {
-    background-color: #ff3333; /* Rouge plus vif */
+.btn-filter:hover, .btn-reset:hover, .btn-deco:hover, .btn-fav:hover {
     box-shadow: 5px 5px 0 rgba(0,0,0,0.5);
     transform: skewX(-10deg) translateY(-2px);
 }
 
-/* --- LE TITRE PRINCIPAL --- */
+/* Couleurs spécifiques */
+.btn-filter { /* Orange */
+    background-color: #f3a833;
+    color: black;
+    margin-right: 5px;
+}
+.btn-filter:hover { background-color: #ffcc00; }
+
+.btn-reset, .btn-deco { /* Rouge */
+    background-color: #ff5555;
+    color: white;
+}
+.btn-reset:hover, .btn-deco:hover { background-color: #ff3333; }
+
+
+.btn-fav:hover { background-color: white; }
+
+
+/* =========================================
+   4. CONTENU PRINCIPAL & TITRE
+   ========================================= */
 .page-title {
     text-align: center;
     font-family: 'Impact', 'Arial Black', sans-serif;
     font-size: 3.5rem;
-    color: #ffcc00; /* Jaune Borderlands */
-    
-    /* Contour noir épais (Cel Shading) */
-    text-shadow: 
-        3px 3px 0 #000,
-        -2px -2px 0 #000,
-        2px -2px 0 #000,
-        -2px 2px 0 #000,
-        5px 5px 0 rgba(0,0,0,0.5);
-        
+    color: #ffcc00;
+    text-shadow: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 5px 5px 0 rgba(0,0,0,0.5);
     margin-top: 40px;
     margin-bottom: 50px;
     transform: rotate(-2deg);
@@ -163,7 +200,6 @@ select:hover {
     text-transform: uppercase;
 }
 
-/* Style pour le "2" rouge */
 .red-two {
     color: #ff3333;
     font-size: 4rem;
@@ -173,7 +209,9 @@ select:hover {
     text-shadow: 4px 4px 0 #000;
 }
 
-/* --- GRILLE & CARTES --- */
+/* =========================================
+   5. GRILLE & CARTES
+   ========================================= */
 #weapon-container {
     display: flex;
     flex-wrap: wrap;
@@ -191,7 +229,7 @@ select:hover {
     position: relative;
     transition: transform 0.2s;
     box-shadow: 10px 10px 0 rgba(0,0,0,0.5);
-    overflow: hidden; /* Important pour que l'image ne dépasse pas */
+    overflow: hidden;
 }
 
 .card:hover {
@@ -199,25 +237,30 @@ select:hover {
     z-index: 10;
 }
 
-/* --- IMAGES PLEIN CADRE --- */
+/* --- IMAGES PLEIN CADRE (Modifié) --- */
 .card-image-box {
-    background-color: #222;
+    background-color: #111;
     height: 180px; /* Hauteur fixe */
     width: 100%;
     border-bottom: 3px solid #000;
     overflow: hidden;
+    /* Plus besoin de flex center car l'image remplit tout */
+    display: block; 
 }
 
 .card img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* L'image remplit tout le cadre (zoom) */
+    /* C'EST ICI : Cover remplit tout le cadre (zoom) */
+    object-fit: cover; 
     object-position: center;
     transition: transform 0.3s ease;
+    /* On garde l'ombre pour le style */
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
 }
 
 .card:hover img {
-    transform: scale(1.1); /* Zoom léger au survol */
+    transform: scale(1.1) rotate(2deg);
 }
 
 .card-content {
@@ -274,4 +317,84 @@ select:hover {
     background: rgba(0,0,0,0.8);
     padding: 20px;
     border: 2px solid #f3a833;
+}
+
+/* --- BOUTON FAVORI SUR CARTE (Étoile) --- */
+.fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    text-decoration: none;
+    z-index: 50;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.fav-btn:hover {
+    background-color: #ffcc00;
+    color: black;
+    border-color: black;
+    transform: scale(1.2) rotate(15deg);
+    box-shadow: 0 0 10px #ffcc00;
+}
+
+.card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+/* --- MESSAGES FLASH (NOTIFICATIONS) --- */
+.flash-message {
+    position: fixed;
+    top: 110px;
+    left: 50%;
+    transform: translateX(-50%) skewX(-10deg);
+    z-index: 2000;
+    
+    padding: 15px 60px; /* J'ai augmenté le padding sur les côtés */
+    font-family: 'Impact', sans-serif;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 3px solid;
+    
+    /* --- AJOUTS POUR LA LONGUEUR --- */
+    white-space: nowrap; /* Le texte reste sur une seule ligne */
+    min-width: 400px;    /* Largeur minimale imposée */
+    text-align: center;  /* Texte centré */
+    /* ------------------------------- */
+    
+    animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Style SUCCÈS (Cyan - Arme ajoutée) */
+.flash-success {
+    background-color: #ffcc00;
+    color: black;
+    border-color: black;
+}
+
+/* Style ERREUR (Rouge - Pas connecté) */
+.flash-error {
+    background-color: rgba(255, 0, 0, 0.95);
+    color: white;
+    box-shadow: 0 0 20px red;
+}
+
+/* Animation de descente */
+@keyframes slideDown {
+    0% { top: -100px; opacity: 0; }
+    100% { top: 110px; opacity: 1; }
 }

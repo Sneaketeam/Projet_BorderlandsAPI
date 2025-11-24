@@ -7,20 +7,34 @@ import (
 )
 
 func InitServer() {
-	// 1. API (JSON)
+	// 1. API & Static
 	http.HandleFunc("/api/weapons", controller.GetWeapons)
 
-	// 2. Images (Fichiers statiques)
+	// --- NOUVEAU : API POUR LE JAVASCRIPT (FAVORIS SANS RECHARGEMENT) ---
+	http.HandleFunc("/api/fav/toggle", controller.ToggleFavoriteAPI)
+
+	// 2. Images
 	imgServer := http.FileServer(http.Dir("./images"))
 	http.Handle("/images/", http.StripPrefix("/images/", imgServer))
 
-	// 3. CSS (Fichiers statiques)
+	// 3. CSS
 	cssServer := http.FileServer(http.Dir("./stylecss"))
 	http.Handle("/stylecss/", http.StripPrefix("/stylecss/", cssServer))
 
-	// 4. Pages du Site Web
-	http.HandleFunc("/", controller.IndexPage)        // Page d'accueil (Liste)
-	http.HandleFunc("/weapon", controller.WeaponPage) // NOUVELLE ROUTE : Page Détails
+	// 4. Pages du Site
+	http.HandleFunc("/", controller.IndexPage)
+	http.HandleFunc("/weapon", controller.WeaponPage)
+
+	// 5. Favoris (Pages classiques)
+	http.HandleFunc("/favorites", controller.FavoritesPage)                // Voir la liste
+	http.HandleFunc("/favorites/add", controller.AddFavoriteHandler)       // Action classique (redirection)
+	http.HandleFunc("/favorites/remove", controller.RemoveFavoriteHandler) // Action classique (redirection)
+
+	// 6. Authentification
+	http.HandleFunc("/auth", controller.LoginPage)
+	http.HandleFunc("/signup", controller.SignupHandler)
+	http.HandleFunc("/login", controller.LoginHandler)
+	http.HandleFunc("/logout", controller.LogoutHandler)
 
 	// --- MESSAGE DE DÉMARRAGE ---
 	fmt.Println("")
