@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : lun. 24 nov. 2025 à 01:04
+-- Généré le : lun. 24 nov. 2025 à 06:14
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -33,6 +33,20 @@ CREATE TABLE `favorites` (
   `weapon_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Déchargement des données de la table `favorites`
+--
+
+INSERT INTO `favorites` (`id`, `user_id`, `weapon_id`) VALUES
+(58, 5, 3),
+(59, 5, 12),
+(70, 6, 13),
+(71, 6, 17),
+(200, 1, 16),
+(205, 1, 23),
+(208, 7, 4),
+(212, 1, 4);
+
 -- --------------------------------------------------------
 
 --
@@ -44,6 +58,17 @@ CREATE TABLE `users` (
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password`) VALUES
+(1, 'Sneaketeam', 'giogio220706'),
+(3, 'dzad', 'dzadzadaz'),
+(5, 'zdaz', 'dzadza'),
+(6, 'luciano', 'luciano18'),
+(7, 'dzadazd', 'azdazd');
 
 -- --------------------------------------------------------
 
@@ -132,13 +157,13 @@ ALTER TABLE `weapons`
 -- AUTO_INCREMENT pour la table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=213;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT pour la table `weapons`
