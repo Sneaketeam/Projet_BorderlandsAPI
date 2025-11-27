@@ -50,10 +50,13 @@ type LoginData struct {
 
 func dbConn() (db *sql.DB) {
 	dbDriver := "mysql"
-	dbUser := "root"
-	dbPass := ""
-	dbName := "borderlands_db"
-	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?parseTime=true", dbUser, dbPass, dbName)
+	// Mets tes identifiants AlwaysData ici
+	dbUser := "443067"
+	dbPass := "giogio220706"
+	dbHost := "mysql-borderlandsapi.alwaysdata.net"
+	dbName := "borderlandsapi_database"
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?parseTime=true", dbUser, dbPass, dbHost, dbName)
 
 	db, err := sql.Open(dbDriver, dsn)
 	if err != nil {
