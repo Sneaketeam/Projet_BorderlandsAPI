@@ -1,51 +1,35 @@
 package router
 
 import (
-	"BorderlandsAPI/controller"
+	"BorderlandsAPI/controller" // Vérifie le nom du module
 	"fmt"
 	"net/http"
 )
 
 func InitServer() {
-	// 1. API & Static
-	http.HandleFunc("/api/weapons", controller.GetWeapons)
-
-	// --- NOUVEAU : API POUR LE JAVASCRIPT (FAVORIS SANS RECHARGEMENT) ---
-	http.HandleFunc("/api/fav/toggle", controller.ToggleFavoriteAPI)
-
-	// 2. Images
-	imgServer := http.FileServer(http.Dir("./images"))
-	http.Handle("/images/", http.StripPrefix("/images/", imgServer))
-
-	// 3. CSS
-	cssServer := http.FileServer(http.Dir("./stylecss"))
-	http.Handle("/stylecss/", http.StripPrefix("/stylecss/", cssServer))
-
-	// 4. Pages du Site
+	// Pages
 	http.HandleFunc("/", controller.IndexPage)
 	http.HandleFunc("/weapon", controller.WeaponPage)
+	http.HandleFunc("/favorites", controller.FavoritesPage)
 
-	// 5. Favoris (Pages classiques)
-	http.HandleFunc("/favorites", controller.FavoritesPage)                // Voir la liste
-	http.HandleFunc("/favorites/add", controller.AddFavoriteHandler)       // Action classique (redirection)
-	http.HandleFunc("/favorites/remove", controller.RemoveFavoriteHandler) // Action classique (redirection)
+	// Actions
+	http.HandleFunc("/favorites/add", controller.AddFavoriteHandler)
+	http.HandleFunc("/favorites/remove", controller.RemoveFavoriteHandler)
+	http.HandleFunc("/api/fav/toggle", controller.ToggleFavoriteAPI) // Pour l'AJAX
 
-	// 6. Authentification
+	// Auth
 	http.HandleFunc("/auth", controller.LoginPage)
 	http.HandleFunc("/signup", controller.SignupHandler)
 	http.HandleFunc("/login", controller.LoginHandler)
 	http.HandleFunc("/logout", controller.LogoutHandler)
 
-	// --- MESSAGE DE DÉMARRAGE ---
-	fmt.Println("")
-	fmt.Println("          ★ GIOVANNI STREET ARMOURY 2 - ONLINE ★")
-	fmt.Println("          --------------------------------------")
-	fmt.Println("          🌍 Site accessible : http://localhost:8000")
-	fmt.Println("")
+	// Static
+	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./images"))))
+	http.Handle("/stylecss/", http.StripPrefix("/stylecss/", http.FileServer(http.Dir("./stylecss"))))
 
-	// Lancement
-	err := http.ListenAndServe(":8000", nil)
-	if err != nil {
-		fmt.Println("❌ Erreur critique :", err)
-	}
+	// API factice pour compatibilité
+	http.HandleFunc("/api/weapons", controller.GetWeapons)
+
+	fmt.Println("✅ SERVEUR STABLE Lancé : http://localhost:8000")
+	http.ListenAndServe(":8000", nil)
 }

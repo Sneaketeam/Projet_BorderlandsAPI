@@ -46,6 +46,18 @@
                     <option value="Bouclier" {{if eq .CurrentCategory "Bouclier"}}selected{{end}}>🛡️ Boucliers</option>
                 </select>
 
+                <select name="manufacturer">
+                    <option value="">-- Marque --</option>
+                    <option value="Jakobs" {{if eq .CurrentManufacturer "Jakobs"}}selected{{end}}>🤠 Jakobs</option>
+                    <option value="Torgue" {{if eq .CurrentManufacturer "Torgue"}}selected{{end}}>💥 Torgue</option>
+                    <option value="Maliwan" {{if eq .CurrentManufacturer "Maliwan"}}selected{{end}}>⚡ Maliwan</option>
+                    <option value="Vladof" {{if eq .CurrentManufacturer "Vladof"}}selected{{end}}>☭ Vladof</option>
+                    <option value="Dahl" {{if eq .CurrentManufacturer "Dahl"}}selected{{end}}>🪖 Dahl</option>
+                    <option value="Hyperion" {{if eq .CurrentManufacturer "Hyperion"}}selected{{end}}>🤖 Hyperion</option>
+                    <option value="Bandit" {{if eq .CurrentManufacturer "Bandit"}}selected{{end}}>🔧 Bandit</option>
+                    <option value="Tediore" {{if eq .CurrentManufacturer "Tediore"}}selected{{end}}>📦 Tediore</option>
+                </select>
+
                 <select name="rarity">
                     <option value="">-- Rareté --</option>
                     <option value="Légendaire" {{if eq .CurrentRarity "Légendaire"}}selected{{end}}>🟠 Légendaire</option>
@@ -73,8 +85,6 @@
     </div>
     {{end}}
 
-    <div id="js-flash-container" class="flash-container"></div>
-
     <main>
         <h1 class="page-title">
             Giovanni Street Armoury <span class="red-two">2</span>
@@ -89,12 +99,15 @@
                     {{else if eq .Rarity "Perlé"}}#00ffff
                     {{else}}#f3a833{{end}};">
                     
-                    <div onclick="toggleFavorite(this, {{.ID}})" 
-                         class="fav-btn {{if .IsFavorite}}fav-remove{{else}}fav-add{{end}}" 
-                         style="cursor: pointer;"
-                         title="Favoris">
-                        {{if .IsFavorite}}❌{{else}}★{{end}}
-                    </div>
+                    {{if $.IsLoggedIn}}
+                        {{if .IsFavorite}}
+                            <a href="/favorites/remove?id={{.ID}}" class="fav-btn fav-remove" title="Retirer des favoris">❌</a>
+                        {{else}}
+                            <a href="/favorites/add?id={{.ID}}" class="fav-btn fav-add" title="Ajouter aux favoris">★</a>
+                        {{end}}
+                    {{else}}
+                        <a href="/?msg=nologin" class="fav-btn fav-add" title="Connexion requise">★</a>
+                    {{end}}
 
                     <a href="/weapon?id={{.ID}}" class="card-link">
                         <div class="card-image-box">
@@ -124,64 +137,31 @@
                 </div>
                 {{end}}
             {{else}}
-                <p class="no-result">Aucun butin trouvé, Chasseur !</p>
+                <p class="no-result">Aucun butin trouvé pour cette recherche, Chasseur de l'Arche 🔫 !</p>
             {{end}}
         </div>
+
+        <div class="pagination" style="text-align: center; margin: 40px 0;">
+            {{if gt .CurrentPage 1}}
+            <a href="/?page={{.PrevPage}}&category={{.CurrentCategory}}&manufacturer={{.CurrentManufacturer}}&rarity={{.CurrentRarity}}&name={{.CurrentName}}" 
+               class="btn-filter" style="margin-right: 20px; text-decoration: none;">
+               ⬅ PRÉCÉDENT
+            </a>
+            {{end}}
+
+            <span style="font-family: 'Impact', sans-serif; font-size: 24px; color: white; margin: 0 10px;">
+                PAGE {{.CurrentPage}} / {{.TotalPages}}
+            </span>
+
+            {{if lt .CurrentPage .TotalPages}}
+            <a href="/?page={{.NextPage}}&category={{.CurrentCategory}}&manufacturer={{.CurrentManufacturer}}&rarity={{.CurrentRarity}}&name={{.CurrentName}}" 
+               class="btn-filter" style="margin-left: 20px; text-decoration: none;">
+               SUIVANT ➡
+            </a>
+            {{end}}
+        </div>
+
     </main>
-
-    <script>
-        function toggleFavorite(btn, id) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            fetch('/api/fav/toggle?id=' + id)
-                .then(response => {
-                    if (response.status === 401) {
-                        window.location.href = "/?msg=nologin";
-                        return null;
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data) return;
-
-                    // Reset complet du style inline pour laisser le CSS agir
-                    btn.style = "cursor: pointer;"; 
-
-                    if (data.status === "added") {
-                        // DEVIENT SUPPRIMER (ROUGE)
-                        btn.innerHTML = "❌";
-                        btn.classList.remove("fav-add");
-                        btn.classList.add("fav-remove"); // Cette classe met le fond rouge via CSS
-                        
-                        showFlash("★ " + data.name + " ajoutée aux Favoris !", "success");
-
-                    } else if (data.status === "removed") {
-                        // DEVIENT AJOUTER (CYAN)
-                        btn.innerHTML = "★";
-                        btn.classList.remove("fav-remove");
-                        btn.classList.add("fav-add"); // Cette classe remet le style par défaut
-                        
-                        showFlash("🗑️ " + data.name + " retirée des Favoris.", "error");
-                    }
-                })
-                .catch(err => console.error(err));
-        }
-
-        function showFlash(message, type) {
-            const container = document.getElementById('js-flash-container');
-            const div = document.createElement('div');
-            
-            div.className = 'flash-message ' + (type === 'error' ? 'flash-error' : 'flash-success');
-            div.innerText = message;
-            
-            container.appendChild(div);
-
-            setTimeout(() => {
-                div.remove();
-            }, 3500);
-        }
-    </script>
 
 </body>
 </html>

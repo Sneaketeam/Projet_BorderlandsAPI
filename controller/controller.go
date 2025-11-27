@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"html/template"
+	"math"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -29,14 +31,19 @@ type Weapon struct {
 }
 
 type PageData struct {
-	Weapons         []Weapon
-	CurrentCategory string
-	CurrentRarity   string
-	CurrentName     string
-	IsLoggedIn      bool
-	Username        string
-	FlashMessage    string
-	FlashType       string
+	Weapons             []Weapon
+	CurrentCategory     string
+	CurrentRarity       string
+	CurrentName         string
+	CurrentManufacturer string
+	IsLoggedIn          bool
+	Username            string
+	FlashMessage        string
+	FlashType           string
+	CurrentPage         int
+	TotalPages          int
+	NextPage            int
+	PrevPage            int
 }
 
 type LoginData struct {
@@ -50,14 +57,14 @@ type LoginData struct {
 
 func dbConn() (db *sql.DB) {
 	dbDriver := "mysql"
-	// Mets tes identifiants AlwaysData ici
+
+	// TES INFOS ALWAYSDATA
 	dbUser := "443067"
 	dbPass := "giogio220706"
 	dbHost := "mysql-borderlandsapi.alwaysdata.net"
 	dbName := "borderlandsapi_database"
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?parseTime=true", dbUser, dbPass, dbHost, dbName)
-
 	db, err := sql.Open(dbDriver, dsn)
 	if err != nil {
 		panic(err.Error())
@@ -76,11 +83,14 @@ func getUserID(db *sql.DB, username string) (int, error) {
 // ==========================================
 
 func IndexPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
+	// Session
 	var isLoggedIn bool
 	var username string
 	cookie, err := r.Cookie("session_token")
@@ -89,51 +99,74 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 		username = cookie.Value
 	}
 
+	// Messages Flash
 	msgCode := r.URL.Query().Get("msg")
 	favName := r.URL.Query().Get("fav_name")
 	var flashMsg, flashType string
 
 	if msgCode == "nologin" {
-		flashMsg = "⚠️ Connecte-toi pour ajouter des favoris !"
+		flashMsg = "⚠️ Connecte-toi pour gérer tes favoris !"
 		flashType = "error"
-	} else if msgCode == "added" {
+	}
+	if msgCode == "added" {
 		if favName != "" {
 			flashMsg = "★ " + favName + " ajoutée aux Favoris !"
 		} else {
 			flashMsg = "★ Arme ajoutée aux Favoris !"
 		}
 		flashType = "success"
-	} else if msgCode == "removed" {
-		flashMsg = "🗑️ Arme retirée des Favoris."
-		flashType = "error"
-	} else if msgCode == "error" {
-		flashMsg = "❌ Erreur technique..."
+	}
+	if msgCode == "removed" {
+		flashMsg = "🗑️ Arme retirée."
 		flashType = "error"
 	}
 
 	db := dbConn()
 	defer db.Close()
 
+	// Filtres & Pagination
 	cat := r.URL.Query().Get("category")
 	rar := r.URL.Query().Get("rarity")
+	man := r.URL.Query().Get("manufacturer")
 	nam := r.URL.Query().Get("name")
 
-	query := "SELECT * FROM weapons WHERE 1=1"
+	pageStr := r.URL.Query().Get("page")
+	page, _ := strconv.Atoi(pageStr)
+	if page < 1 {
+		page = 1
+	}
+	limit := 10
+	offset := (page - 1) * limit
+
+	whereClause := "1=1"
 	var args []interface{}
 
 	if cat != "" {
-		query += " AND category = ?"
+		whereClause += " AND category = ?"
 		args = append(args, cat)
 	}
 	if rar != "" {
-		query += " AND rarity = ?"
+		whereClause += " AND rarity = ?"
 		args = append(args, rar)
 	}
+	if man != "" {
+		whereClause += " AND manufacturer = ?"
+		args = append(args, man)
+	}
 	if nam != "" {
-		query += " AND name LIKE ?"
+		whereClause += " AND name LIKE ?"
 		args = append(args, "%"+nam+"%")
 	}
 
+	// Total Pages
+	var totalItems int
+	countQuery := "SELECT COUNT(*) FROM weapons WHERE " + whereClause
+	db.QueryRow(countQuery, args...).Scan(&totalItems)
+	totalPages := int(math.Ceil(float64(totalItems) / float64(limit)))
+
+	// Requête Armes
+	query := "SELECT * FROM weapons WHERE " + whereClause + " ORDER BY id ASC LIMIT ? OFFSET ?"
+	args = append(args, limit, offset)
 	rows, _ := db.Query(query, args...)
 	defer rows.Close()
 
@@ -144,7 +177,7 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for rows.Next() {
-		var wpn Weapon // ICI : J'ai bien mis 'wpn' pour éviter le conflit avec 'w'
+		var wpn Weapon
 		rows.Scan(&wpn.ID, &wpn.Category, &wpn.Name, &wpn.Manufacturer, &wpn.Rarity, &wpn.FlavorText, &wpn.Details, &wpn.Source, &wpn.ImageURL)
 
 		if isLoggedIn {
@@ -159,27 +192,23 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 
 	t, _ := template.ParseFiles("templates/index.html")
 	t.Execute(w, PageData{
-		Weapons:         weapons,
-		CurrentCategory: cat,
-		CurrentRarity:   rar,
-		CurrentName:     nam,
-		IsLoggedIn:      isLoggedIn,
-		Username:        username,
-		FlashMessage:    flashMsg,
-		FlashType:       flashType,
+		Weapons: weapons, CurrentCategory: cat, CurrentRarity: rar, CurrentManufacturer: man, CurrentName: nam,
+		IsLoggedIn: isLoggedIn, Username: username, FlashMessage: flashMsg, FlashType: flashType,
+		CurrentPage: page, TotalPages: totalPages,
+		NextPage: page + 1, PrevPage: page - 1,
 	})
 }
 
 func WeaponPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	id := r.URL.Query().Get("id")
 	db := dbConn()
 	defer db.Close()
 
 	var wpn Weapon
 	err := db.QueryRow("SELECT * FROM weapons WHERE id = ?", id).Scan(&wpn.ID, &wpn.Category, &wpn.Name, &wpn.Manufacturer, &wpn.Rarity, &wpn.FlavorText, &wpn.Details, &wpn.Source, &wpn.ImageURL)
-
 	if err != nil {
-		http.Error(w, "Arme introuvable", 404)
+		http.Error(w, "Introuvable", 404)
 		return
 	}
 
@@ -192,7 +221,6 @@ func WeaponPage(w http.ResponseWriter, r *http.Request) {
 			wpn.IsFavorite = true
 		}
 	}
-
 	t, _ := template.ParseFiles("templates/weapon.html")
 	t.Execute(w, wpn)
 }
@@ -202,39 +230,27 @@ func WeaponPage(w http.ResponseWriter, r *http.Request) {
 // ==========================================
 
 func FavoritesPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		http.Redirect(w, r, "/auth?error=nologin", http.StatusSeeOther)
 		return
 	}
-	username := cookie.Value
 
 	db := dbConn()
 	defer db.Close()
-
-	query := `
-		SELECT w.id, w.category, w.name, w.manufacturer, w.rarity, w.flavor_text, w.details, w.source, w.image_url
-		FROM weapons w
-		JOIN favorites f ON w.id = f.weapon_id
-		JOIN users u ON f.user_id = u.id
-		WHERE u.username = ?
-	`
-	rows, _ := db.Query(query, username)
+	query := `SELECT w.id, w.category, w.name, w.manufacturer, w.rarity, w.flavor_text, w.details, w.source, w.image_url FROM weapons w JOIN favorites f ON w.id = f.weapon_id JOIN users u ON f.user_id = u.id WHERE u.username = ?`
+	rows, _ := db.Query(query, cookie.Value)
 	defer rows.Close()
 
 	var weapons []Weapon
 	for rows.Next() {
-		var wpn Weapon // ICI : 'wpn' au lieu de 'w' pour corriger ton erreur !
+		var wpn Weapon
 		rows.Scan(&wpn.ID, &wpn.Category, &wpn.Name, &wpn.Manufacturer, &wpn.Rarity, &wpn.FlavorText, &wpn.Details, &wpn.Source, &wpn.ImageURL)
 		weapons = append(weapons, wpn)
 	}
-
 	t, _ := template.ParseFiles("templates/favorites.html")
-	t.Execute(w, PageData{
-		Weapons:    weapons,
-		IsLoggedIn: true,
-		Username:   username,
-	})
+	t.Execute(w, PageData{Weapons: weapons, IsLoggedIn: true, Username: cookie.Value})
 }
 
 func AddFavoriteHandler(w http.ResponseWriter, r *http.Request) {
@@ -243,10 +259,8 @@ func AddFavoriteHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/?msg=nologin", http.StatusSeeOther)
 		return
 	}
-
 	db := dbConn()
 	defer db.Close()
-
 	weaponID := r.URL.Query().Get("id")
 	userID, _ := getUserID(db, cookie.Value)
 
@@ -255,8 +269,8 @@ func AddFavoriteHandler(w http.ResponseWriter, r *http.Request) {
 
 	db.Exec("INSERT IGNORE INTO favorites (user_id, weapon_id) VALUES (?, ?)", userID, weaponID)
 
-	safeName := url.QueryEscape(weaponName)
-	http.Redirect(w, r, "/?msg=added&fav_name="+safeName, http.StatusSeeOther)
+	// Redirection avec le nom pour l'affichage
+	http.Redirect(w, r, "/?msg=added&fav_name="+url.QueryEscape(weaponName), http.StatusSeeOther)
 }
 
 func RemoveFavoriteHandler(w http.ResponseWriter, r *http.Request) {
@@ -265,49 +279,43 @@ func RemoveFavoriteHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
-
 	db := dbConn()
 	defer db.Close()
-
 	userID, _ := getUserID(db, cookie.Value)
 	weaponID := r.URL.Query().Get("id")
-
 	db.Exec("DELETE FROM favorites WHERE user_id = ? AND weapon_id = ?", userID, weaponID)
-
 	http.Redirect(w, r, "/?msg=removed", http.StatusSeeOther)
 }
 
+// API AJAX (Au cas où tu voudrais réutiliser le JS plus tard)
 func ToggleFavoriteAPI(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		http.Error(w, "Non connecté", http.StatusUnauthorized)
 		return
 	}
-
 	db := dbConn()
 	defer db.Close()
 
 	weaponID := r.URL.Query().Get("id")
 	userID, err := getUserID(db, cookie.Value)
 	if err != nil {
-		http.Error(w, "User introuvable", http.StatusUnauthorized)
+		http.Error(w, "Error", 500)
 		return
 	}
 
 	var count int
 	db.QueryRow("SELECT COUNT(*) FROM favorites WHERE user_id = ? AND weapon_id = ?", userID, weaponID).Scan(&count)
-
-	var weaponName string
-	db.QueryRow("SELECT name FROM weapons WHERE id = ?", weaponID).Scan(&weaponName)
+	var name string
+	db.QueryRow("SELECT name FROM weapons WHERE id = ?", weaponID).Scan(&name)
 
 	w.Header().Set("Content-Type", "application/json")
-
 	if count > 0 {
 		db.Exec("DELETE FROM favorites WHERE user_id = ? AND weapon_id = ?", userID, weaponID)
-		fmt.Fprintf(w, `{"status": "removed", "name": "%s"}`, weaponName)
+		fmt.Fprintf(w, `{"status": "removed", "name": "%s"}`, name)
 	} else {
 		db.Exec("INSERT INTO favorites (user_id, weapon_id) VALUES (?, ?)", userID, weaponID)
-		fmt.Fprintf(w, `{"status": "added", "name": "%s"}`, weaponName)
+		fmt.Fprintf(w, `{"status": "added", "name": "%s"}`, name)
 	}
 }
 
@@ -319,15 +327,14 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 	errCode := r.URL.Query().Get("error")
 	var msg string
 	var isError bool
-
 	if errCode == "exists" {
 		msg = "Ce pseudo est déjà pris !"
 		isError = true
-	} else if errCode == "wrong" {
+	}
+	if errCode == "wrong" {
 		msg = "Identifiants incorrects !"
 		isError = true
 	}
-
 	t, _ := template.ParseFiles("templates/login.html")
 	t.Execute(w, LoginData{ErrorMessage: msg, IsError: isError})
 }
@@ -335,10 +342,8 @@ func LoginPage(w http.ResponseWriter, r *http.Request) {
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-
 	db := dbConn()
 	defer db.Close()
-
 	_, err := db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", username, password)
 	if err != nil {
 		http.Redirect(w, r, "/auth?error=exists", http.StatusSeeOther)
@@ -351,13 +356,10 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-
 	db := dbConn()
 	defer db.Close()
-
 	var dbPass string
 	err := db.QueryRow("SELECT password FROM users WHERE username = ?", username).Scan(&dbPass)
-
 	if err != nil || dbPass != password {
 		http.Redirect(w, r, "/auth?error=wrong", http.StatusSeeOther)
 		return
@@ -367,28 +369,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	// 1. ON FORCE LE NAVIGATEUR À NE RIEN GARDER EN MÉMOIRE
-	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate") // HTTP 1.1
-	w.Header().Set("Pragma", "no-cache")                                   // HTTP 1.0
-	w.Header().Set("Expires", "0")                                         // Proxies
-
-	// 2. On tue le cookie (Date d'expiration dans le passé)
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
-		Value:    "",
-		Expires:  time.Unix(0, 0), // Date : 1er Janvier 1970 (c'est radical)
-		Path:     "/",
-		HttpOnly: true,
-	})
-
-	// 3. Redirection
+	// Anti-Cache agressif pour la déconnexion
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+	http.SetCookie(w, &http.Cookie{Name: "session_token", Value: "", Expires: time.Unix(0, 0), Path: "/"})
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func createCookie(w http.ResponseWriter, username string) {
-	http.SetCookie(w, &http.Cookie{
-		Name: "session_token", Value: username, Expires: time.Now().Add(24 * time.Hour), Path: "/",
-	})
+	http.SetCookie(w, &http.Cookie{Name: "session_token", Value: username, Expires: time.Now().Add(24 * time.Hour), Path: "/"})
 }
 
 func GetWeapons(w http.ResponseWriter, r *http.Request) {}
